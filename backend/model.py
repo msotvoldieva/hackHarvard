@@ -280,11 +280,13 @@ def generate_future_predictions(model, train_df, product_name, days_ahead=7):
         periods=days_ahead
     )
     
-    # Only include regressors that model was trained on
+    # Include all regressors that model was trained on
     future = pd.DataFrame({
         'ds': future_dates,
         'is_weekend': [1 if d.dayofweek >= 5 else 0 for d in future_dates],
-        'is_holiday': [0] * days_ahead  # Assume no holidays in next 7 days
+        'is_holiday': [0] * days_ahead,  # Assume no holidays in next 7 days
+        'temperature': [train_df['temperature'].mean()] * days_ahead,  # Use historical average
+        'precipitation': [train_df['precipitation'].mean()] * days_ahead  # Use historical average
     })
     
     # Generate predictions
@@ -297,7 +299,6 @@ def generate_future_predictions(model, train_df, product_name, days_ahead=7):
         'predicted_demand': forecast['yhat'].round(0),
         'lower_bound': forecast['yhat_lower'].round(0),
         'upper_bound': forecast['yhat_upper'].round(0),
-        'is_weekend': future['is_weekend']
     })
     
     print("\nFuture Predictions:")
