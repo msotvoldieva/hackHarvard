@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box } from 'lucide-react';
+import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box, Warehouse } from 'lucide-react';
+import StoreInventory from './StoreInventory';
 
 const WasteLess = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -205,6 +206,24 @@ const WasteLess = () => {
           >
             <Package size={20} />
             <span>Products</span>
+          </div>
+          
+          <div 
+            onClick={() => setCurrentPage('inventory')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              padding: '12px 16px', 
+              backgroundColor: currentPage === 'inventory' ? '#10b981' : 'transparent',
+              color: currentPage === 'inventory' ? 'white' : '#6b7280',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Warehouse size={20} />
+            <span>Inventory</span>
           </div>
           
           <div style={{ 
@@ -575,7 +594,7 @@ const WasteLess = () => {
       <Sidebar />
       <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
         <Header />
-        {currentPage === 'dashboard' ? <DashboardPage /> : <ProductsPage />}
+        {currentPage === 'dashboard' ? <DashboardPage /> : currentPage === 'products' ? <ProductsPage /> : <StoreInventory />}
       </div>
     </div>
   );
