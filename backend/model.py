@@ -19,32 +19,36 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEATHER_FILE = os.path.join(BASE_DIR, 'data', 'daily_weather_data.csv')
-SALES_FILE = os.path.join(BASE_DIR, 'data', 'store_sales_2024.csv')
-TRAIN_END_DATE = '2024-08-31'  # Adjust based on your data range
+SALES_FILE = os.path.join(BASE_DIR, 'data', 'daily_sales_dataset.csv')
+TRAIN_END_DATE = '2024-12-31'  # Adjust based on your data range
 OUTPUT_DIR = 'models'
 PREDICTIONS_OUTPUT = 'predictions.csv'
 
 # Products to train models for (None = all products)
-TARGET_PRODUCTS = ['Organic Strawberries', 'Whole Milk (1 gallon)', 'Hot Dogs (8-pack)']
+TARGET_PRODUCTS = ['Strawberries', 'Chocolate', 'Eggs', 'Milk', 'Hot-Dogs']
 
 # ============================================================================
 # DATA LOADING & PREPROCESSING
 # ============================================================================
 
 def load_and_merge_data():
-    """Load weather and sales data, merge them"""
+    """Load sales data (weather data is already included)"""
     print("Loading data...")
-
-    # Load weather data
-    weather = pd.read_csv(WEATHER_FILE)
-    weather['date'] = pd.to_datetime(weather['date'])
     
-    # Load sales data
-    sales = pd.read_csv(SALES_FILE)
-    sales['date'] = pd.to_datetime(sales['date'])
+    # Load sales data (weather data is already included in daily_sales_dataset.csv)
+    df = pd.read_csv(SALES_FILE)
+    df['date'] = pd.to_datetime(df['date'])
     
-    # Merge sales with weather
-    df = sales.merge(weather, on='date', how='left')
+    # Rename columns to match expected format
+    df = df.rename(columns={
+        'product': 'product_name',
+        'items_sold': 'quantity_sold',
+        'items_wasted': 'quantity_wasted',
+        'temperature': 'temperature_2m_mean',
+        'precipitation': 'precipitation_sum',
+        'isWeekend': 'is_weekend',
+        'isHoliday': 'is_holiday'
+    })
     
     print(f"Loaded {len(df)} sales records")
     print(f"Date range: {df['date'].min()} to {df['date'].max()}")
