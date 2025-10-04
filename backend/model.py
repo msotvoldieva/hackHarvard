@@ -269,7 +269,7 @@ def create_data_visualization(train_df, test_df, product_name):
 # FUTURE PREDICTIONS
 # ============================================================================
 
-def generate_future_predictions(model, train_df, product_name, days_ahead=7):
+def generate_future_predictions(model, train_df, product_name, days_ahead=30):
     """Generate predictions for future days"""
     
     print(f"\nGenerating {days_ahead}-day forecast for {product_name}...")
