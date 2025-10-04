@@ -99,14 +99,6 @@ The API will be available at `http://localhost:5000`
 
 The application will be available at `http://localhost:3000`
 
-## 📊 API Endpoints
-
-- `GET /api/health` - Health check
-- `GET /api/products` - Get list of available products
-- `GET /api/predictions/<product_name>` - Get predictions for a product
-- `GET /api/metrics` - Get validation metrics
-- `POST /api/forecast` - Generate new forecast
-
 ## 🧠 Machine Learning
 
 The system uses Facebook Prophet for time series forecasting with the following features:
@@ -124,31 +116,4 @@ The system uses Facebook Prophet for time series forecasting with the following 
 - **Insights**: Environmental impact calculations
 - **Responsive Design**: Works on desktop and mobile
 
-## 🔧 Development
-
-### Adding New Products
-
-1. Add product data to the CSV files in `backend/data/`
-2. Train a new model by running `python src/model.py`
-3. The model will be automatically saved in `backend/models/`
-
-### Customizing the Dashboard
-
-- Edit `frontend/src/components/dashboard.js` for UI changes
-- Modify `frontend/src/App.css` for styling
-- Add new components in `frontend/src/components/`
-
-## 📝 License
-
-This project is part of the hackHarvard hackathon.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📞 Support
-
-For questions or support, please open an issue in the repository.
+Authors: Ana Lopes, Tommy Chen, Madina Sotvoldieva
