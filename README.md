@@ -1,15 +1,14 @@
-# EcoPredict - AI-Powered Demand Forecasting
+# WasteLess - AI-Powered Product Demand Prediction
 
 EcoPredict is an intelligent demand forecasting system for grocery stores that uses machine learning to predict product demand, reduce food waste, and optimize inventory management.
 
 ## 🚀 Features
 
 - **AI-Powered Forecasting**: Uses Facebook Prophet for accurate demand predictions
-- **Interactive Dashboard**: Beautiful React-based dashboard with real-time visualizations
+- **Interactive Dashboard**: React-based dashboard with real-time visualizations
 - **Multi-Product Support**: Forecasts for various grocery products (Milk, Eggs, Strawberries, etc.)
 - **Weather Integration**: Considers weather data for more accurate predictions
 - **Waste Reduction**: Helps reduce food waste through better demand planning
-- **RESTful API**: Clean API for integration with other systems
 
 ## 📁 Project Structure
 
@@ -19,6 +18,7 @@ hackHarvard/
 │   ├── src/
 │   │   ├── components/      # React components
 │   │   │   └── dashboard.js # Main dashboard component
+|   |   |   └── StoreInventory.js # Store Inventory
 │   │   ├── App.js          # Main App component
 │   │   ├── App.css         # App styles
 │   │   └── index.js        # Entry point
