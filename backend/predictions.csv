@@ -1,0 +1,22 @@
+date,product,predicted_demand,lower_bound,upper_bound,is_weekend
+2024-09-01,Organic Strawberries,119.0,97.0,139.0,1
+2024-09-02,Organic Strawberries,106.0,84.0,129.0,0
+2024-09-03,Organic Strawberries,104.0,82.0,127.0,0
+2024-09-04,Organic Strawberries,109.0,87.0,129.0,0
+2024-09-05,Organic Strawberries,107.0,83.0,128.0,0
+2024-09-06,Organic Strawberries,115.0,94.0,138.0,0
+2024-09-07,Organic Strawberries,133.0,111.0,156.0,1
+2024-09-01,Whole Milk (1 gallon),92.0,68.0,114.0,1
+2024-09-02,Whole Milk (1 gallon),79.0,54.0,102.0,0
+2024-09-03,Whole Milk (1 gallon),73.0,51.0,95.0,0
+2024-09-04,Whole Milk (1 gallon),73.0,49.0,97.0,0
+2024-09-05,Whole Milk (1 gallon),74.0,50.0,97.0,0
+2024-09-06,Whole Milk (1 gallon),87.0,63.0,110.0,0
+2024-09-07,Whole Milk (1 gallon),107.0,83.0,129.0,1
+2024-09-01,Hot Dogs (8-pack),88.0,70.0,108.0,1
+2024-09-02,Hot Dogs (8-pack),76.0,56.0,95.0,0
+2024-09-03,Hot Dogs (8-pack),77.0,57.0,96.0,0
+2024-09-04,Hot Dogs (8-pack),79.0,59.0,99.0,0
+2024-09-05,Hot Dogs (8-pack),82.0,63.0,100.0,0
+2024-09-06,Hot Dogs (8-pack),93.0,74.0,112.0,0
+2024-09-07,Hot Dogs (8-pack),104.0,84.0,123.0,1
