@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import EcoPredictDashboard from './dashboard';
+import WasteLess from './components/dashboard';
 
 function App() {
   return (
     <div className="App">
-      <EcoPredictDashboard />
+      <WasteLess />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box } from 'lucide-react';
 
-const EcoApp = () => {
+const WasteLess = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedProduct, setSelectedProduct] = useState('Milk');
   const [showProductDropdown, setShowProductDropdown] = useState(false);
@@ -162,8 +162,8 @@ const EcoApp = () => {
     <div style={{ width: '256px', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '24px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-          <span style={{ color: '#10b981' }}>Eco</span>
-          <span style={{ color: '#1f2937' }}>Predict</span>
+          <span style={{ color: '#10b981' }}>Waste</span>
+          <span style={{ color: '#1f2937' }}>Less</span>
         </h1>
       </div>
       
@@ -581,4 +581,4 @@ const EcoApp = () => {
   );
 };
 
-export default EcoApp;
+export default WasteLess;
