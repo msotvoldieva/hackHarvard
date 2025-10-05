@@ -3,6 +3,7 @@ import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Respon
 import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box, Warehouse } from 'lucide-react';
 import StoreInventory from './StoreInventory';
 import hotdogImage from '../hotdog.jpg';
+import logoImage from '../logo.png';
 
 const WasteLess = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -186,10 +187,17 @@ const WasteLess = () => {
   const Sidebar = () => (
     <div style={{ width: '256px', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '24px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-          <span style={{ color: '#10b981' }}>Waste</span>
-          <span style={{ color: '#1f2937' }}>Less</span>
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+          <img 
+            src={logoImage} 
+            alt="WasteLess Logo" 
+            style={{ width: '50px', height: '50px', objectFit: 'contain' }}
+          />
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
+            <span style={{ color: '#10b981' }}>Waste</span>
+            <span style={{ color: '#1f2937' }}>Less</span>
+          </h1>
+        </div>
       </div>
       
       <nav style={{ marginTop: '24px', flex: 1 }}>
