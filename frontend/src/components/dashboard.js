@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, BarChart, PieChart, Pie, Cell } from 'recharts';
 import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box, Warehouse } from 'lucide-react';
 import StoreInventory from './StoreInventory';
+import hotdogImage from '../hotdog.jpg';
 
 const WasteLess = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -57,7 +58,7 @@ const WasteLess = () => {
     { name: 'Chocolate', avgDemand: 62, image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?w=400' },
     { name: 'Eggs', avgDemand: 84, image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400' },
     { name: 'Milk', avgDemand: 102, image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400' },
-    { name: 'Hot-Dogs', avgDemand: 55, image: 'https://images.unsplash.com/photo-1612392062798-2307c5f0a3f5?w=400' }
+    { name: 'Hot-Dogs', avgDemand: 55, image: hotdogImage }
   ];
 
   const calculateInsights = () => {
@@ -80,34 +81,34 @@ const WasteLess = () => {
     
     return [
       {
-        title: 'You saved',
-        amount: `${wasteByCategory.fruits.toFixed(0)} KG`,
-        subtitle: 'of fruits from waste.',
-        equivalent: '4-5 liters of gasoline not burned',
+        title: 'You will save around',
+        amount: `3800 ibs`,
+        subtitle: 'of strawberries in a year from waste.',
+        equivalent: '2.5 months of electricity use for an average American home',
         icon: <Users className="w-8 h-8 text-emerald-500" />,
         bgColor: '#dbeafe'
       },
       {
-        title: 'You saved',
-        amount: '2,000 KG',
-        subtitle: 'of vegetables from waste.',
-        equivalent: '300 times charging your phone',
+        title: 'You will save around',
+        amount: '2890 dozen',
+        subtitle: 'eggs in a year from waste.',
+        equivalent: 'driving from New York to Los Angeles 5 times',
         icon: <Box className="w-8 h-8 text-emerald-500" />,
         bgColor: '#d1fae5'
       },
       {
-        title: 'You saved',
-        amount: `${wasteByCategory.dairy.toFixed(0)} KG`,
-        subtitle: 'of dairy from waste.',
-        equivalent: '30 hours of air conditioning',
+        title: 'You will save around',
+        amount: `2300 packs`,
+        subtitle: 'of hot-dogs in a year from waste.',
+        equivalent: '1.1 million full smartphone charges',
         icon: <Users className="w-8 h-8 text-emerald-500" />,
         bgColor: '#dbeafe'
       },
       {
-        title: 'You saved',
-        amount: `${wasteByCategory.food.toFixed(0)} KG`,
-        subtitle: 'of food from waste.',
-        equivalent: '4-5 liters of gasoline not burned',
+        title: 'You will save around',
+        amount: `5670 gallons`,
+        subtitle: 'of milk in a year from waste.',
+        equivalent: 'nearly 2 full years of heating and cooling a typical home',
         icon: <Box className="w-8 h-8 text-emerald-500" />,
         bgColor: '#d1fae5'
       }
