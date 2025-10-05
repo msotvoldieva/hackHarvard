@@ -18,11 +18,15 @@ import os
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-WEATHER_FILE = os.path.join(BASE_DIR, 'data', 'daily_weather_data.csv')
-SALES_FILE = os.path.join(BASE_DIR, 'data', 'daily_sales_dataset.csv')
+
+# Fix: point to top-level data directory, not relative to src
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+WEATHER_FILE = os.path.join(PROJECT_ROOT, 'data', 'daily_weather_data.csv')
+SALES_FILE = os.path.join(PROJECT_ROOT, 'data', 'daily_sales_dataset.csv')
+
 TRAIN_END_DATE = '2024-12-31'  # Adjust based on your data range
-OUTPUT_DIR = 'models'
-PREDICTIONS_OUTPUT = 'predictions.csv'
+OUTPUT_DIR = os.path.join(PROJECT_ROOT, 'models')
+PREDICTIONS_OUTPUT = os.path.join(PROJECT_ROOT, 'src', 'visualizations', 'predictions.csv')
 
 # Products to train models for (None = all products)
 TARGET_PRODUCTS = ['Strawberries', 'Chocolate', 'Eggs', 'Milk', 'Hot-Dogs']
