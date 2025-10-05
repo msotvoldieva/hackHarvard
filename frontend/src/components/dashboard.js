@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box, Warehouse, X } from 'lucide-react';
+import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, BarChart, PieChart, Pie, Cell } from 'recharts';
+import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box, Warehouse } from 'lucide-react';
 import StoreInventory from './StoreInventory';
+import hotdogImage from '../hotdog.jpg';
+import logoImage from '../logo.png';
 import Chat from './chat.js';
 
 const WasteLess = () => {
@@ -11,40 +13,41 @@ const WasteLess = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   
   const csvData = {
-    Strawberries: Array.from({ length: 30 }, (_, i) => ({
-      date: `Day ${i + 1}`,
+    Strawberries: Array.from({ length: 7 }, (_, i) => ({
+      date: `Jan ${i + 1}`,
       predicted: [43, 45, 50, 57, 57, 39, 41][i % 7],
       lower: [38, 40, 45, 51, 51, 33, 35][i % 7],
       upper: [49, 51, 56, 63, 62, 44, 46][i % 7],
       waste: 8 + Math.floor(i % 4),
+      
       total: [51, 54, 60, 68, 68, 47, 49][i % 7]
     })),
-    Chocolate: Array.from({ length: 30 }, (_, i) => ({
-      date: `Day ${i + 1}`,
+    Chocolate: Array.from({ length: 7 }, (_, i) => ({
+      date: `Jan ${i + 1}`,
       predicted: [59, 62, 68, 68, 67, 53, 56][i % 7],
       lower: [52, 55, 60, 60, 60, 45, 48][i % 7],
       upper: [67, 69, 74, 75, 75, 61, 63][i % 7],
       waste: 11 + Math.floor(i % 4),
       total: [71, 74, 82, 82, 80, 64, 67][i % 7]
     })),
-    Eggs: Array.from({ length: 30 }, (_, i) => ({
-      date: `Day ${i + 1}`,
+    Eggs: Array.from({ length: 7 }, (_, i) => ({
+      date: `Jan ${i + 1}`,
       predicted: [74, 79, 82, 104, 106, 75, 69][i % 7],
       lower: [65, 70, 72, 95, 96, 64, 59][i % 7],
       upper: [84, 89, 92, 115, 116, 85, 79][i % 7],
       waste: 14 + Math.floor(i % 7),
       total: [89, 95, 98, 125, 127, 90, 83][i % 7]
     })),
-    Milk: Array.from({ length: 30 }, (_, i) => ({
-      date: `Day ${i + 1}`,
+    Milk: Array.from({ length: 7 }, (_, i) => ({
+      date: `Jan ${i + 1}`,
       predicted: [92, 98, 101, 116, 120, 98, 92][i % 7],
       lower: [80, 86, 89, 104, 108, 86, 81][i % 7],
       upper: [103, 110, 113, 128, 131, 109, 104][i % 7],
       waste: 18 + Math.floor(i % 7),
       total: [110, 118, 121, 139, 144, 118, 110][i % 7]
     })),
-    'Hot-Dogs': Array.from({ length: 30 }, (_, i) => ({
-      date: `Day ${i + 1}`,
+    'Hot-Dogs': Array.from({ length: 7 }, (_, i) => ({
+      date: `Jan ${i + 1}`,
       predicted: [48, 51, 57, 72, 72, 43, 46][i % 7],
       lower: [41, 45, 50, 65, 65, 36, 40][i % 7],
       upper: [55, 59, 64, 79, 78, 50, 53][i % 7],
@@ -58,7 +61,7 @@ const WasteLess = () => {
     { name: 'Chocolate', avgDemand: 62, image: 'https://images.unsplash.com/photo-1511381939415-e44015466834?w=400' },
     { name: 'Eggs', avgDemand: 84, image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400' },
     { name: 'Milk', avgDemand: 102, image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400' },
-    { name: 'Hot-Dogs', avgDemand: 55, image: 'https://images.unsplash.com/photo-1612392062798-2307c5f0a3f5?w=400' }
+    { name: 'Hot-Dogs', avgDemand: 55, image: hotdogImage }
   ];
 
   const calculateInsights = () => {
@@ -81,34 +84,34 @@ const WasteLess = () => {
     
     return [
       {
-        title: 'You saved',
-        amount: `${wasteByCategory.fruits.toFixed(0)} KG`,
-        subtitle: 'of fruits from waste.',
-        equivalent: '4-5 liters of gasoline not burned',
+        title: 'You will save around',
+        amount: `3800 ibs`,
+        subtitle: 'of strawberries in a year from waste.',
+        equivalent: '2.5 months of electricity use for an average American home',
         icon: <Users className="w-8 h-8 text-emerald-500" />,
         bgColor: '#dbeafe'
       },
       {
-        title: 'You saved',
-        amount: '2,000 KG',
-        subtitle: 'of vegetables from waste.',
-        equivalent: '300 times charging your phone',
+        title: 'You will save around',
+        amount: '2890 dozen',
+        subtitle: 'eggs in a year from waste.',
+        equivalent: 'driving from New York to Los Angeles 5 times',
         icon: <Box className="w-8 h-8 text-emerald-500" />,
         bgColor: '#d1fae5'
       },
       {
-        title: 'You saved',
-        amount: `${wasteByCategory.dairy.toFixed(0)} KG`,
-        subtitle: 'of dairy from waste.',
-        equivalent: '30 hours of air conditioning',
+        title: 'You will save around',
+        amount: `2300 packs`,
+        subtitle: 'of hot-dogs in a year from waste.',
+        equivalent: '1.1 million full smartphone charges',
         icon: <Users className="w-8 h-8 text-emerald-500" />,
         bgColor: '#dbeafe'
       },
       {
-        title: 'You saved',
-        amount: `${wasteByCategory.food.toFixed(0)} KG`,
-        subtitle: 'of food from waste.',
-        equivalent: '4-5 liters of gasoline not burned',
+        title: 'You will save around',
+        amount: `5670 gallons`,
+        subtitle: 'of milk in a year from waste.',
+        equivalent: 'nearly 2 full years of heating and cooling a typical home',
         icon: <Box className="w-8 h-8 text-emerald-500" />,
         bgColor: '#d1fae5'
       }
@@ -116,7 +119,7 @@ const WasteLess = () => {
   };
   
   const insightsData = calculateInsights();
-
+  
   const getProductColor = (product) => {
     const colors = {
       'Strawberries': { stroke: '#ef4444' },
@@ -127,6 +130,31 @@ const WasteLess = () => {
     };
     return colors[product] || colors['Milk'];
   };
+
+  // Real data from daily_sales_dataset.csv (aggregated by product)
+  const realSalesData = {
+    Strawberries: { totalSold: 19100, totalWasted: 3817, wasteRate: 16.7 },
+    Chocolate: { totalSold: 29054, totalWasted: 1246, wasteRate: 4.1 },
+    Eggs: { totalSold: 38609, totalWasted: 2891, wasteRate: 7.0 },
+    Milk: { totalSold: 47031, totalWasted: 5669, wasteRate: 10.8 },
+    'Hot-Dogs': { totalSold: 24885, totalWasted: 2315, wasteRate: 8.5 }
+  };
+
+  // Convert to chart data format
+  const salesChartData = Object.entries(realSalesData).map(([product, data]) => ({
+    product,
+    sold: data.totalSold,
+    wasted: data.totalWasted,
+    total: data.totalSold + data.totalWasted,
+    wasteRate: data.wasteRate
+  }));
+
+  // Pie chart data for waste distribution
+  const wastePieData = Object.entries(realSalesData).map(([product, data]) => ({
+    name: product,
+    value: data.totalWasted,
+    color: getProductColor(product).stroke
+  }));
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -144,13 +172,10 @@ const WasteLess = () => {
             {data.date}
           </div>
           <div style={{ color: color, fontWeight: '600' }}>
-            Products: {data.predicted} units
-          </div>
-          <div style={{ color: '#ef4444', fontWeight: '600' }}>
-            Waste: {data.waste} units
+            Predicted: {data.predicted} units
           </div>
           <div style={{ color: '#7c3aed', fontWeight: '600', marginTop: '4px' }}>
-            Total: {data.total} units
+            Usually bought: {data.total} units
           </div>
           <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
             Range: {data.lower} - {data.upper}
@@ -164,10 +189,17 @@ const WasteLess = () => {
   const Sidebar = () => (
     <div style={{ width: '256px', backgroundColor: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column' }}>
       <div style={{ padding: '24px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-          <span style={{ color: '#10b981' }}>Waste</span>
-          <span style={{ color: '#1f2937' }}>Less</span>
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+          <img 
+            src={logoImage} 
+            alt="WasteLess Logo" 
+            style={{ width: '50px', height: '50px', objectFit: 'contain' }}
+          />
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
+            <span style={{ color: '#10b981' }}>Waste</span>
+            <span style={{ color: '#1f2937' }}>Less</span>
+          </h1>
+        </div>
       </div>
       
       <nav style={{ marginTop: '24px', flex: 1 }}>
@@ -432,7 +464,7 @@ const WasteLess = () => {
       <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '24px', marginBottom: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1f2937', margin: 0 }}>
-            Product Demand Forecast: {selectedProduct} - This Month
+            Product Demand Forecast: {selectedProduct} - January 2025
           </h3>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
@@ -501,7 +533,7 @@ const WasteLess = () => {
         </div>
         
         <ResponsiveContainer width="100%" height={400}>
-          <AreaChart data={csvData[selectedProduct]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+          <ComposedChart data={csvData[selectedProduct]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorRange" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={getProductColor(selectedProduct).stroke} stopOpacity={0.2}/>
@@ -549,18 +581,10 @@ const WasteLess = () => {
               dot={{ fill: '#7c3aed', strokeWidth: 2, r: 5 }}
               activeDot={{ r: 7 }}
             />
-          </AreaChart>
+          </ComposedChart>
         </ResponsiveContainer>
         
         <div style={{ marginTop: '16px', display: 'flex', gap: '24px', justifyContent: 'center', fontSize: '14px', color: '#6b7280' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '16px', height: '3px', backgroundColor: getProductColor(selectedProduct).stroke, borderRadius: '2px' }}></div>
-            <span>Products Bought</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '16px', height: '3px', backgroundColor: '#7c3aed', borderRadius: '2px' }}></div>
-            <span>Total (Products + Waste)</span>
-          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '16px', height: '16px', backgroundColor: getProductColor(selectedProduct).stroke, opacity: 0.2, borderRadius: '2px' }}></div>
             <span>Confidence Range</span>
@@ -602,6 +626,104 @@ const WasteLess = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Real Sales Data Visualization */}
+      <h3 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937', marginBottom: '24px', marginTop: '48px' }}>
+        Real Sales Data Analysis (2024-2025)
+      </h3>
+      
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+        {/* Products Bought vs Wasted Bar Chart */}
+        <div style={{ 
+          backgroundColor: 'white', 
+          borderRadius: '12px', 
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)', 
+          padding: '24px'
+        }}>
+          <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1f2937', marginBottom: '20px', marginTop: 0 }}>
+            Products Bought vs Wasted by Product
+          </h4>
+          
+          <ResponsiveContainer width="100%" height={350}>
+            <BarChart data={salesChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis 
+                dataKey="product" 
+                stroke="#9ca3af"
+                style={{ fontSize: '12px' }}
+                angle={-45}
+                textAnchor="end"
+                height={80}
+              />
+              <YAxis 
+                stroke="#9ca3af"
+                style={{ fontSize: '12px' }}
+                label={{ value: 'Units', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
+              />
+              <Tooltip 
+                formatter={(value, name) => [value.toLocaleString(), name === 'sold' ? 'Sold' : 'Wasted']}
+                labelFormatter={(label) => `Product: ${label}`}
+              />
+              <Bar dataKey="sold" fill="#10b981" name="sold" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="wasted" fill="#ef4444" name="wasted" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+          
+          <div style={{ marginTop: '16px', display: 'flex', gap: '24px', justifyContent: 'center', fontSize: '14px', color: '#6b7280' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '16px', height: '16px', backgroundColor: '#10b981', borderRadius: '2px' }}></div>
+              <span>Products Sold</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '16px', height: '16px', backgroundColor: '#ef4444', borderRadius: '2px' }}></div>
+              <span>Products Wasted</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Waste Distribution Pie Chart */}
+        <div style={{ 
+          backgroundColor: 'white', 
+          borderRadius: '12px', 
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)', 
+          padding: '24px'
+        }}>
+          <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1f2937', marginBottom: '20px', marginTop: 0 }}>
+            Waste Distribution by Product
+          </h4>
+          
+          <ResponsiveContainer width="100%" height={350}>
+            <PieChart>
+              <Pie
+                data={wastePieData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={120}
+                paddingAngle={5}
+                dataKey="value"
+              >
+                {wastePieData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip 
+                formatter={(value) => [value.toLocaleString() + ' units', 'Wasted']}
+                labelFormatter={(label) => `Product: ${label}`}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          
+          <div style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '12px' }}>
+            {wastePieData.map((item, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ width: '12px', height: '12px', backgroundColor: item.color, borderRadius: '2px' }}></div>
+                <span style={{ color: '#6b7280' }}>{item.name}: {item.value.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
