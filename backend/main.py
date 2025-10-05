@@ -3,6 +3,7 @@ EcoPredict Backend API
 Flask API server for demand forecasting
 """
 
+import uuid
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import pandas as pd
@@ -10,6 +11,10 @@ import pickle
 import os
 from datetime import datetime, timedelta
 import numpy as np
+from chatbot import WasteLessChatbot
+
+chatbot = WasteLessChatbot()
+sessions = {}
 
 app = Flask(__name__)
 CORS(app)
@@ -18,6 +23,7 @@ CORS(app)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.join(BASE_DIR, 'models')
 DATA_DIR = os.path.join(BASE_DIR, 'data')
+
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -45,7 +51,7 @@ def get_predictions(product_name):
     """Get predictions for a specific product"""
     try:
         # Load predictions from CSV
-        predictions_file = os.path.join(BASE_DIR, 'predictions.csv')
+        predictions_file = os.path.join(BASE_DIR, 'output', 'predictions.csv')
         if os.path.exists(predictions_file):
             df = pd.read_csv(predictions_file)
             product_predictions = df[df['product'] == product_name].to_dict('records')
@@ -59,7 +65,7 @@ def get_predictions(product_name):
 def get_metrics():
     """Get validation metrics for all products"""
     try:
-        metrics_file = os.path.join(BASE_DIR, 'validation_metrics.csv')
+        metrics_file = os.path.join(BASE_DIR, 'output', 'validation_metrics.csv')
         if os.path.exists(metrics_file):
             df = pd.read_csv(metrics_file)
             metrics = df.to_dict('records')
@@ -125,5 +131,50 @@ def generate_forecast():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    """Handle chat messages"""
+    data = request.json
+    user_message = data.get('message')
+    session_id = data.get('session_id')
+    
+    if not user_message:
+        return jsonify({"error": "Message is required"}), 400
+    
+    # Get or create session
+    if not session_id:
+        session_id = str(uuid.uuid4())
+    
+    session_data = sessions.get(session_id, {"history": []})
+    
+    try:
+        # Process message
+        result = chatbot.handle_message(user_message, session_data)
+        
+        # Update session history
+        session_data["history"].append({
+            "user": user_message,
+            "assistant": result["response"]
+        })
+        sessions[session_id] = session_data
+        
+        return jsonify({
+            "response": result["response"],
+            "session_id": session_id,
+            "data_used": result.get("data_used")
+        })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/chat/greeting', methods=['GET'])
+def get_greeting():
+    """Get proactive greeting message"""
+    try:
+        greeting = chatbot.get_proactive_greeting()
+        return jsonify({"greeting": greeting})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8000)

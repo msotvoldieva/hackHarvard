@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box, Warehouse } from 'lucide-react';
+import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box, Warehouse, X } from 'lucide-react';
 import StoreInventory from './StoreInventory';
+import Chat from './chat.js';
 
 const WasteLess = () => {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedProduct, setSelectedProduct] = useState('Milk');
   const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   
   const csvData = {
     Strawberries: Array.from({ length: 30 }, (_, i) => ({
@@ -239,15 +241,30 @@ const WasteLess = () => {
             <span>Calendar</span>
           </div>
           
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px', 
-            padding: '12px 16px', 
-            color: '#6b7280',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
+          <div 
+            onClick={() => setIsChatOpen(true)}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              padding: '12px 16px', 
+              color: isChatOpen ? '#3b82f6' : '#6b7280',
+              backgroundColor: isChatOpen ? '#eff6ff' : 'transparent',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (!isChatOpen) {
+                e.target.style.backgroundColor = '#f3f4f6';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isChatOpen) {
+                e.target.style.backgroundColor = 'transparent';
+              }
+            }}
+          >
             <MessageSquare size={20} />
             <span>Chat</span>
           </div>
@@ -596,6 +613,84 @@ const WasteLess = () => {
         <Header />
         {currentPage === 'dashboard' ? <DashboardPage /> : currentPage === 'products' ? <ProductsPage /> : <StoreInventory />}
       </div>
+      
+      {/* Chat Drawer Overlay */}
+      {isChatOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              zIndex: 998,
+              transition: 'opacity 0.3s ease'
+            }}
+            onClick={() => setIsChatOpen(false)}
+          />
+          
+          {/* Chat Drawer */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              right: 0,
+              height: '100vh',
+              width: '450px',
+              backgroundColor: 'white',
+              boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.15)',
+              zIndex: 999,
+              transform: isChatOpen ? 'translateX(0)' : 'translateX(100%)',
+              transition: 'transform 0.3s ease',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            {/* Chat Header */}
+            <div
+              style={{
+                padding: '20px',
+                borderBottom: '1px solid #e5e7eb',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#f8fafc'
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+                WasteLess Assistant
+              </h3>
+              <button
+                onClick={() => setIsChatOpen(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#6b7280',
+                  transition: 'background-color 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {/* Chat Content */}
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <Chat />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

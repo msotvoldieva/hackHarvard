@@ -1,4 +1,4 @@
-date,product,items_sold,items_wasted,temperature,precipitation,day_of_week,isWeekend,isHoliday
+date,product,items_sold,items_wasted,temperature,precipitation,day_of_week,is_weekend,is_holiday
 2024-01-01,Strawberries,52,10,38.2,0.0,0,0,1
 2024-01-01,Chocolate,93,4,38.2,0.0,0,0,1
 2024-01-01,Eggs,107,8,38.2,0.0,0,0,1

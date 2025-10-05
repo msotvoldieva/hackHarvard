@@ -1,11 +1,12 @@
+// src/App.js
 import React from 'react';
+import Dashboard from './components/dashboard';
 import './App.css';
-import WasteLess from './components/dashboard';
 
 function App() {
   return (
     <div className="App">
-      <WasteLess />
+      <Dashboard />
     </div>
   );
 }
