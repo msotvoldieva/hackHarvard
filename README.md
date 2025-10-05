@@ -1,6 +1,6 @@
 # WasteLess - AI-Powered Product Demand Prediction
 
-EcoPredict is an intelligent demand forecasting system for grocery stores that uses machine learning to predict product demand, reduce food waste, and optimize inventory management.
+WasteLess is an intelligent demand forecasting system for grocery stores that uses machine learning to predict product demand, reduce food waste, and optimize inventory management.
 
 ## 🚀 Features
 
