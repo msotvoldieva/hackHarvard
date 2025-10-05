@@ -20,6 +20,8 @@ class WasteLessChatbot:
 Your role:
 - Help store managers reduce food waste through data-driven decisions
 - Explain Prophet ML predictions in clear, actionable language
+- Provide inventory status and expiration tracking
+- Recommend discounts based on expiration urgency
 - Provide detailed analysis with specific numbers and data points
 - Reference historical trends, weather impacts, and seasonal patterns
 - Be proactive with recommendations
@@ -27,7 +29,7 @@ Your role:
 Communication style:
 - Professional but conversational
 - Always cite specific data (dates, quantities, percentages)
-- Explain "why" behind predictions
+- Explain "why" behind predictions and recommendations
 - Give clear, actionable recommendations
 - Be concise but thorough (3-5 sentences for simple queries, more for complex)
 
@@ -35,12 +37,16 @@ Available data:
 - Historical sales and waste data
 - Prophet ML forecasts
 - Weather correlations
-- Current inventory status
+- Current inventory status with expiration dates
+- Discount recommendations based on expiration urgency
+- Automated supplier order recommendations when significant forecast changes occur
+
+When forecasts show significant changes (>15%), I automatically analyze ordering needs and generate supplier recommendations based on Prophet forecasting and historical trends.
 
 When answering:
 1. Acknowledge the question
 2. Provide specific data/numbers
-3. Explain reasoning (cite Prophet model, weather, trends)
+3. Explain reasoning (cite Prophet model, weather, trends, expiration urgency)
 4. Give clear recommendation
 5. Offer follow-up if appropriate"""
     
@@ -97,6 +103,10 @@ When answering:
                     "type": "boolean",
                     "description": "Does the query need discount/pricing recommendations?"
                 },
+                "needs_inventory_status": {
+                    "type": "boolean",
+                    "description": "Does the query need current inventory levels and expiration status?"
+                },
                 "products": {
                     "type": "array",
                     "items": {"type": "string"},
@@ -113,12 +123,12 @@ When answering:
         
         prompt = f"""Analyze this user question and determine what data is needed to answer it:
 
-User question: "{user_message}"
+        User question: "{user_message}"
 
-Available products: {', '.join(self.db.get_all_products())}
+        Available products: {', '.join(self.db.get_all_products())}
 
-Determine what data we need to fetch."""
-        
+        Determine what data we need to fetch."""
+                
         result = self.gemini.generate(
             user_prompt=prompt,
             system_instruction="You are a data analyst identifying information needs.",
@@ -156,10 +166,17 @@ Determine what data we need to fetch."""
                 product_data["current_status"] = self.db.get_current_status(product)
             
             if data_needs.get("needs_forecast"):
-                product_data["forecast"] = self.db.get_prophet_prediction(
+                forecast_data = self.db.get_prophet_prediction(
                     product, 
                     days_ahead=data_needs.get("timeframe_days", 7)
                 )
+                product_data["forecast"] = forecast_data
+                
+                # Check if we should trigger supplier communication
+                if "error" not in forecast_data:
+                    supplier_action = self._analyze_forecast_for_supplier_action(product, forecast_data)
+                    if supplier_action["should_contact"]:
+                        product_data["supplier_communication"] = supplier_action
             
             if data_needs.get("needs_historical_trend"):
                 product_data["historical_trend"] = self.db.get_sales_trend(
@@ -173,28 +190,62 @@ Determine what data we need to fetch."""
             if data_needs.get("needs_discount_recommendation"):
                 product_data["discount_recommendation"] = self.db.get_discount_recommendation(product)
             
+            if data_needs.get("needs_inventory_status"):
+                product_data["inventory_status"] = self.db.get_inventory_status(product)
+            
             gathered[product] = product_data
         
         return gathered
     
+    def _analyze_forecast_for_supplier_action(self, product: str, forecast_data: dict) -> dict:
+        """Check if forecast warrants supplier order recommendation"""
+        
+        # Get historical baseline
+        historical = self.db.get_sales_trend(product, days=30)
+        if "error" in historical:
+            return {"should_contact": False}
+        
+        historical_weekly = historical['statistics']['avg_daily_sold'] * 7
+        forecast_total = forecast_data.get('total_predicted', 0)
+        
+        change_pct = ((forecast_total - historical_weekly) / historical_weekly * 100) if historical_weekly > 0 else 0
+        
+        # Trigger supplier order analysis if significant change (>10%)
+        if abs(change_pct) > 10:
+            from agents.supplier_forecast_agent import SupplierForecastAgent
+            supplier_agent = SupplierForecastAgent(self.gemini)
+            
+            supplier_result = supplier_agent.forecast_and_order(product, 7)
+            
+            return {
+                "should_contact": True,
+                "change_percentage": change_pct,
+                "order_analyzed": True,
+                "recommended_order": supplier_result.get('recommended_order_quantity', 0),
+                "reasoning": supplier_result.get('reasoning', ''),
+                "forecast_direction": "increase" if change_pct > 0 else "decrease"
+            }
+        
+        return {"should_contact": False, "change_percentage": change_pct}
+
     def _generate_response(self, user_message: str, data: Dict, session_data: Dict = None) -> str:
         """Generate natural language response using Gemini"""
         
         # Build context
         context = f"""User asked: "{user_message}"
 
-Here is the relevant data from our system:
+        Here is the relevant data from our system:
 
-{json.dumps(data, indent=2)}
+        {json.dumps(data, indent=2)}
 
-Generate a detailed, helpful response that:
-1. Directly answers their question
-2. Cites specific numbers and data points
-3. Explains WHY (reference Prophet model, weather correlations, historical patterns)
-4. Provides clear, actionable recommendations
-5. Offers relevant follow-up if appropriate
+        Generate a detailed, helpful response that:
+        1. Directly answers their question
+        2. Cites specific numbers and data points
+        3. Explains WHY (reference Prophet model, weather correlations, historical patterns)
+        4. Provides clear, actionable recommendations
+        5. Offers relevant follow-up if appropriate
 
-Be conversational but data-driven. Always include specifics."""
+        Be conversational but data-driven. Always include specifics. For supplier order recommendations, mention the recommendation with details."""
         
         # Add conversation history if available
         if session_data and "history" in session_data:
@@ -229,16 +280,16 @@ Be conversational but data-driven. Always include specifics."""
         if insights:
             context = f"""Generate a friendly, proactive greeting for the store manager.
 
-Current situation:
-{json.dumps(insights, indent=2)}
+            Current situation:
+            {json.dumps(insights, indent=2)}
 
-The greeting should:
-- Be warm and professional
-- Highlight the most urgent issues (2-3 items max)
-- Include specific recommendations
-- End with "How can I help you today?" or similar
+            The greeting should:
+            - Be warm and professional
+            - Highlight the most urgent issues (2-3 items max)
+            - Include specific recommendations
+            - End with "How can I help you today?" or similar
 
-Keep it concise (3-4 sentences)."""
+            Keep it concise (3-4 sentences)."""
             
             greeting = self.gemini.generate_text(
                 user_prompt=context,

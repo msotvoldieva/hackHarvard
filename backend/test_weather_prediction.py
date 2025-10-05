@@ -7,6 +7,7 @@ import pandas as pd
 import pickle
 import os
 from datetime import datetime, timedelta
+from weather_service import WeatherService
 
 def test_weather_predictions():
     """Test that our Prophet models can accept weather data"""
@@ -36,21 +37,14 @@ def test_weather_predictions():
     )
     
     # Simple weather scenarios for 7 days
-    weather_data = [
-        {"temp": 75, "precip": 0.0, "desc": "Sunny"},
-        {"temp": 68, "precip": 0.0, "desc": "Clear"},
-        {"temp": 45, "precip": 0.8, "desc": "Rainy"},
-        {"temp": 32, "precip": 0.0, "desc": "Cold"},
-        {"temp": 55, "precip": 0.2, "desc": "Light Rain"},
-        {"temp": 80, "precip": 0.0, "desc": "Hot"},
-        {"temp": 28, "precip": 1.2, "desc": "Snow"}
-    ]
-    
+    weather_service = WeatherService()
+    weather_data = weather_service.get_forecast(7)
+
     # Create future dataframe with weather
     future = pd.DataFrame({
         'ds': future_dates,
-        'temperature': [w['temp'] for w in weather_data],
-        'precipitation': [w['precip'] for w in weather_data],
+        'temperature': [w['temperature'] for w in weather_data],
+        'precipitation': [w['precipitation'] for w in weather_data],
         'is_weekend': [1 if d.dayofweek >= 5 else 0 for d in future_dates],
         'is_holiday': [0] * 7
     })
@@ -59,7 +53,7 @@ def test_weather_predictions():
     for i, row in future.iterrows():
         weather = weather_data[i]
         weekend = " (Weekend)" if row['is_weekend'] else ""
-        print(f"  {row['ds'].strftime('%Y-%m-%d')}: {weather['desc']} - {weather['temp']}°F, {weather['precip']}\" rain{weekend}")
+        print(f"  {row['ds'].strftime('%Y-%m-%d')}: {weather['temperature']}°F, {weather['precipitation']}\" rain{weekend}")
     
     # Try to make predictions
     try:
@@ -75,7 +69,7 @@ def test_weather_predictions():
             
             print(f"{future_row['ds'].strftime('%Y-%m-%d')}: {row['yhat']:.1f} units "
                   f"({row['yhat_lower']:.1f}-{row['yhat_upper']:.1f}) | "
-                  f"{weather['desc']} - {weather['temp']}°F{weekend}")
+                  f"{weather['temperature']}°F{weekend}")
         
         print(f"\nSUCCESS! Model predictions work with weather data.")
         print(f"Average prediction: {forecast['yhat'].mean():.1f} units")

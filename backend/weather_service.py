@@ -33,12 +33,8 @@ class WeatherService:
         Falls back to mock data when API key is not available.
         """
         try:
-            # API call temporarily commented out - uncomment when API key is ready
-            # real_data = self._fetch_real_forecast(days)
-            # return real_data
-            
-            # Using mock data for now
-            return self._generate_mock_forecast(days)
+            # API call temporarily commented out - uncomment when API key is ready            
+            return self._fetch_from_api(days)
         except Exception as e:
             print(f"Error fetching weather forecast: {e}")
             return self._generate_mock_forecast(days)

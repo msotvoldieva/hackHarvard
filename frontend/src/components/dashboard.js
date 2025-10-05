@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, BarChart, PieChart, Pie, Cell } from 'recharts';
-import { Menu, Search, Bell, Settings, LogOut, LayoutDashboard, Package, Calendar, MessageSquare, TrendingUp, Users, Box, Warehouse } from 'lucide-react';
+import { Bell, Menu, Search, Settings, LogOut, LayoutDashboard, Package, MessageSquare, TrendingUp, Users, Box, Warehouse } from 'lucide-react';
 import StoreInventory from './StoreInventory';
 import hotdogImage from '../hotdog.jpg';
 import logoImage from '../logo.png';
@@ -11,50 +11,70 @@ const WasteLess = () => {
   const [selectedProduct, setSelectedProduct] = useState('Milk');
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [csvData, setCsvData] = useState({});
+  const [loading, setLoading] = useState(true);
   
-  const csvData = {
-    Strawberries: Array.from({ length: 7 }, (_, i) => ({
-      date: `Jan ${i + 1}`,
-      predicted: [43, 45, 50, 57, 57, 39, 41][i % 7],
-      lower: [38, 40, 45, 51, 51, 33, 35][i % 7],
-      upper: [49, 51, 56, 63, 62, 44, 46][i % 7],
-      waste: 8 + Math.floor(i % 4),
-      
-      total: [51, 54, 60, 68, 68, 47, 49][i % 7]
-    })),
-    Chocolate: Array.from({ length: 7 }, (_, i) => ({
-      date: `Jan ${i + 1}`,
-      predicted: [59, 62, 68, 68, 67, 53, 56][i % 7],
-      lower: [52, 55, 60, 60, 60, 45, 48][i % 7],
-      upper: [67, 69, 74, 75, 75, 61, 63][i % 7],
-      waste: 11 + Math.floor(i % 4),
-      total: [71, 74, 82, 82, 80, 64, 67][i % 7]
-    })),
-    Eggs: Array.from({ length: 7 }, (_, i) => ({
-      date: `Jan ${i + 1}`,
-      predicted: [74, 79, 82, 104, 106, 75, 69][i % 7],
-      lower: [65, 70, 72, 95, 96, 64, 59][i % 7],
-      upper: [84, 89, 92, 115, 116, 85, 79][i % 7],
-      waste: 14 + Math.floor(i % 7),
-      total: [89, 95, 98, 125, 127, 90, 83][i % 7]
-    })),
-    Milk: Array.from({ length: 7 }, (_, i) => ({
-      date: `Jan ${i + 1}`,
-      predicted: [92, 98, 101, 116, 120, 98, 92][i % 7],
-      lower: [80, 86, 89, 104, 108, 86, 81][i % 7],
-      upper: [103, 110, 113, 128, 131, 109, 104][i % 7],
-      waste: 18 + Math.floor(i % 7),
-      total: [110, 118, 121, 139, 144, 118, 110][i % 7]
-    })),
-    'Hot-Dogs': Array.from({ length: 7 }, (_, i) => ({
-      date: `Jan ${i + 1}`,
-      predicted: [48, 51, 57, 72, 72, 43, 46][i % 7],
-      lower: [41, 45, 50, 65, 65, 36, 40][i % 7],
-      upper: [55, 59, 64, 79, 78, 50, 53][i % 7],
-      waste: 9 + Math.floor(i % 6),
-      total: [58, 61, 68, 86, 86, 52, 55][i % 7]
-    }))
-  };
+  // Fetch predictions data from API
+  useEffect(() => {
+    const fetchPredictions = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/predictions/all');
+        const data = await response.json();
+        if (data.predictions) {
+          setCsvData(data.predictions);
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching predictions:', error);
+        // Fall back to hardcoded data if API fails
+        setCsvData({
+          Strawberries: Array.from({ length: 7 }, (_, i) => ({
+            date: `Jan ${i + 1}`,
+            predicted: [43, 45, 50, 57, 57, 39, 41][i % 7],
+            lower: [38, 40, 45, 51, 51, 33, 35][i % 7],
+            upper: [49, 51, 56, 63, 62, 44, 46][i % 7],
+            waste: 8 + Math.floor(i % 4),
+            total: [51, 54, 60, 68, 68, 47, 49][i % 7]
+          })),
+          Chocolate: Array.from({ length: 7 }, (_, i) => ({
+            date: `Jan ${i + 1}`,
+            predicted: [59, 62, 68, 68, 67, 53, 56][i % 7],
+            lower: [52, 55, 60, 60, 60, 45, 48][i % 7],
+            upper: [67, 69, 74, 75, 75, 61, 63][i % 7],
+            waste: 11 + Math.floor(i % 4),
+            total: [71, 74, 82, 82, 80, 64, 67][i % 7]
+          })),
+          Eggs: Array.from({ length: 7 }, (_, i) => ({
+            date: `Jan ${i + 1}`,
+            predicted: [74, 79, 82, 104, 106, 75, 69][i % 7],
+            lower: [65, 70, 72, 95, 96, 64, 59][i % 7],
+            upper: [84, 89, 92, 115, 116, 85, 79][i % 7],
+            waste: 14 + Math.floor(i % 7),
+            total: [89, 95, 98, 125, 127, 90, 83][i % 7]
+          })),
+          Milk: Array.from({ length: 7 }, (_, i) => ({
+            date: `Jan ${i + 1}`,
+            predicted: [92, 98, 101, 116, 120, 98, 92][i % 7],
+            lower: [80, 86, 89, 104, 108, 86, 81][i % 7],
+            upper: [103, 110, 113, 128, 131, 109, 104][i % 7],
+            waste: 18 + Math.floor(i % 7),
+            total: [110, 118, 121, 139, 144, 118, 110][i % 7]
+          })),
+          'Hot-Dogs': Array.from({ length: 7 }, (_, i) => ({
+            date: `Jan ${i + 1}`,
+            predicted: [48, 51, 57, 72, 72, 43, 46][i % 7],
+            lower: [41, 45, 50, 65, 65, 36, 40][i % 7],
+            upper: [55, 59, 64, 79, 78, 50, 53][i % 7],
+            waste: 9 + Math.floor(i % 6),
+            total: [58, 61, 68, 86, 86, 52, 55][i % 7]
+          }))
+        });
+        setLoading(false);
+      }
+    };
+
+    fetchPredictions();
+  }, []);
 
   const products = [
     { name: 'Strawberries', avgDemand: 47, image: 'https://images.unsplash.com/photo-1543528176-61b239494933?w=400' },
@@ -85,7 +105,7 @@ const WasteLess = () => {
     return [
       {
         title: 'You will save around',
-        amount: `3800 ibs`,
+        amount: `3800 lbs`,
         subtitle: 'of strawberries in a year from waste.',
         equivalent: '2.5 months of electricity use for an average American home',
         icon: <Users className="w-8 h-8 text-emerald-500" />,
@@ -260,19 +280,6 @@ const WasteLess = () => {
             <span>Inventory</span>
           </div>
           
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '12px', 
-            padding: '12px 16px', 
-            color: '#6b7280',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
-            <Calendar size={20} />
-            <span>Calendar</span>
-          </div>
-          
           <div 
             onClick={() => setIsChatOpen(true)}
             style={{ 
@@ -367,23 +374,6 @@ const WasteLess = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{ position: 'relative', cursor: 'pointer' }}>
             <Bell size={24} style={{ color: '#6b7280' }} />
-            <span style={{ 
-              position: 'absolute', 
-              top: '-4px', 
-              right: '-4px', 
-              width: '20px', 
-              height: '20px', 
-              backgroundColor: '#ef4444', 
-              color: 'white', 
-              fontSize: '12px', 
-              borderRadius: '50%', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              fontWeight: '600'
-            }}>
-              3
-            </span>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -532,22 +522,34 @@ const WasteLess = () => {
           </div>
         </div>
         
-        <ResponsiveContainer width="100%" height={400}>
-          <ComposedChart data={csvData[selectedProduct]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="colorRange" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={getProductColor(selectedProduct).stroke} stopOpacity={0.2}/>
-                <stop offset="95%" stopColor={getProductColor(selectedProduct).stroke} stopOpacity={0.05}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="date" 
-              stroke="#9ca3af"
-              style={{ fontSize: '13px' }}
-            />
-            <YAxis 
-              label={{ value: 'Demand (units)', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
+        {loading ? (
+          <div style={{ 
+            height: '400px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: '#6b7280',
+            fontSize: '16px'
+          }}>
+            Loading predictions data...
+          </div>
+        ) : csvData[selectedProduct] ? (
+          <ResponsiveContainer width="100%" height={400}>
+            <ComposedChart data={csvData[selectedProduct]} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorRange" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={getProductColor(selectedProduct).stroke} stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor={getProductColor(selectedProduct).stroke} stopOpacity={0.05}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis 
+                dataKey="date" 
+                stroke="#9ca3af"
+                style={{ fontSize: '13px' }}
+              />
+              <YAxis 
+                label={{ value: 'Demand (units)', angle: -90, position: 'insideLeft', style: { fill: '#6b7280' } }}
               stroke="#9ca3af"
               style={{ fontSize: '13px' }}
             />
@@ -583,6 +585,18 @@ const WasteLess = () => {
             />
           </ComposedChart>
         </ResponsiveContainer>
+        ) : (
+          <div style={{ 
+            height: '400px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: '#6b7280',
+            fontSize: '16px'
+          }}>
+            No data available for {selectedProduct}
+          </div>
+        )}
         
         <div style={{ marginTop: '16px', display: 'flex', gap: '24px', justifyContent: 'center', fontSize: '14px', color: '#6b7280' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -802,7 +816,6 @@ const WasteLess = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
               >
-                <X size={20} />
               </button>
             </div>
             

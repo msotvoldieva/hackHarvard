@@ -279,6 +279,142 @@ class Database:
         
         return " and ".join(reasons)
 
+    def get_inventory_status(self, product: str) -> Dict:
+        """Get current inventory status from inventory.csv"""
+        try:
+            import os
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            inventory_file = os.path.join(base_dir, 'output', 'inventory.csv')
+            
+            if not os.path.exists(inventory_file):
+                return {"error": f"Inventory file not found"}
+            
+            inventory_df = pd.read_csv(inventory_file)
+            inventory_df['expirationDate'] = pd.to_datetime(inventory_df['expirationDate'])
+            inventory_df['dateBought'] = pd.to_datetime(inventory_df['dateBought'])
+            
+            # Filter for this product
+            product_inv = inventory_df[inventory_df['product'] == product]
+            
+            if product_inv.empty:
+                return {"error": f"No inventory data for {product}"}
+            
+            # Sort by expiration date (soonest first)
+            product_inv = product_inv.sort_values('expirationDate')
+            
+            # Calculate totals and urgency
+            total_quantity = int(product_inv['quantity'].sum())
+            nearest_expiry = product_inv.iloc[0]
+            days_until_expiry = (nearest_expiry['expirationDate'] - pd.Timestamp.now()).days
+            
+            # Categorize urgency
+            if days_until_expiry < 0:
+                urgency = "expired"
+            elif days_until_expiry <= 2:
+                urgency = "critical"
+            elif days_until_expiry <= 5:
+                urgency = "high"
+            elif days_until_expiry <= 14:
+                urgency = "medium"
+            else:
+                urgency = "low"
+            
+            # Build batch details
+            batches = []
+            for _, row in product_inv.iterrows():
+                batch_days = (row['expirationDate'] - pd.Timestamp.now()).days
+                batches.append({
+                    "quantity": int(row['quantity']),
+                    "expiration_date": str(row['expirationDate'].date()),
+                    "days_until_expiry": batch_days,
+                    "date_bought": str(row['dateBought'].date())
+                })
+            
+            return {
+                "product": product,
+                "total_quantity": total_quantity,
+                "urgency": urgency,
+                "days_until_nearest_expiry": days_until_expiry,
+                "nearest_expiration": str(nearest_expiry['expirationDate'].date()),
+                "num_batches": len(batches),
+                "batches": batches,
+                "recommendations": self._get_discount_recommendations(product, urgency, days_until_expiry, total_quantity)
+            }
+        
+        except Exception as e:
+            return {"error": f"Error reading inventory: {str(e)}"}
+    
+    def get_all_inventory_overview(self) -> Dict:
+        """Get high-level overview of all inventory"""
+        try:
+            import os
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            inventory_file = os.path.join(base_dir, 'output', 'inventory.csv')
+            
+            if not os.path.exists(inventory_file):
+                return {"error": "Inventory file not found"}
+            
+            inventory_df = pd.read_csv(inventory_file)
+            inventory_df['expirationDate'] = pd.to_datetime(inventory_df['expirationDate'])
+            
+            # Summary by urgency
+            urgent_items = []
+            all_products = inventory_df['product'].unique()
+            
+            for product in all_products:
+                product_status = self.get_inventory_status(product)
+                if "error" not in product_status:
+                    if product_status['urgency'] in ['expired', 'critical', 'high']:
+                        urgent_items.append({
+                            "product": product,
+                            "urgency": product_status['urgency'],
+                            "days_until_expiry": product_status['days_until_nearest_expiry'],
+                            "quantity": product_status['total_quantity']
+                        })
+            
+            return {
+                "total_products": len(all_products),
+                "products": all_products.tolist(),
+                "urgent_items": urgent_items,
+                "total_urgent": len(urgent_items)
+            }
+        
+        except Exception as e:
+            return {"error": f"Error reading inventory overview: {str(e)}"}
+    
+    def _get_discount_recommendations(self, product: str, urgency: str, days_until_expiry: int, quantity: int) -> Dict:
+        """Generate discount recommendations based on inventory urgency"""
+        if urgency == "expired":
+            return {
+                "action": "immediate_removal",
+                "discount_pct": 0,
+                "reasoning": "Product has expired and should be removed from shelves"
+            }
+        elif urgency == "critical":
+            return {
+                "action": "deep_discount",
+                "discount_pct": 50,
+                "reasoning": f"Only {days_until_expiry} days until expiry - deep discount needed to move {quantity} units"
+            }
+        elif urgency == "high":
+            return {
+                "action": "moderate_discount", 
+                "discount_pct": 25,
+                "reasoning": f"{days_until_expiry} days until expiry - moderate discount recommended for {quantity} units"
+            }
+        elif urgency == "medium":
+            return {
+                "action": "light_discount",
+                "discount_pct": 10,
+                "reasoning": f"{days_until_expiry} days until expiry - light discount to encourage sales"
+            }
+        else:
+            return {
+                "action": "no_discount",
+                "discount_pct": 0,
+                "reasoning": f"Product is fresh with {days_until_expiry} days until expiry"
+            }
+
 import pandas as pd
 import pickle
 import os
@@ -319,8 +455,13 @@ def convert_types(obj):
     if isinstance(obj, dict):
         return {k: convert_types(v) for k, v in obj.items()}
     elif isinstance(obj, list):
-        return [convert_types(i) for i in obj]
-    elif isinstance(obj, np.generic):
-        return obj.item()
-    return obj
+        return [convert_types(v) for v in obj]
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    else:
+        return obj
 

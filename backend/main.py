@@ -61,6 +61,53 @@ def get_predictions(product_name):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/predictions/all', methods=['GET'])
+def get_all_predictions():
+    """Get all predictions formatted for dashboard"""
+    try:
+        predictions_file = os.path.join(BASE_DIR, 'output', 'predictions.csv')
+        if os.path.exists(predictions_file):
+            df = pd.read_csv(predictions_file)
+            
+            # Group by product and format for dashboard
+            formatted_data = {}
+            for product in df['product'].unique():
+                product_data = df[df['product'] == product].head(7)  # First 7 days
+                
+                formatted_product_data = []
+                for _, row in product_data.iterrows():
+                    # Parse date and format as "Jan 1", "Jan 2", etc.
+                    date_obj = pd.to_datetime(row['date'])
+                    formatted_date = date_obj.strftime('%b %d')
+                    
+                    formatted_product_data.append({
+                        'date': formatted_date,
+                        'predicted': int(row['predicted_demand']),
+                        'lower': int(row['lower_bound']),
+                        'upper': int(row['upper_bound']),
+                        # Keep hardcoded waste and total for demonstration as requested
+                        'waste': 8 + len(formatted_product_data) % 4 if product == 'Strawberries' else
+                                11 + len(formatted_product_data) % 4 if product == 'Chocolate' else
+                                14 + len(formatted_product_data) % 7 if product == 'Eggs' else
+                                18 + len(formatted_product_data) % 7 if product == 'Milk' else
+                                9 + len(formatted_product_data) % 6,
+                        'total': int(row['predicted_demand']) + (
+                            8 + len(formatted_product_data) % 4 if product == 'Strawberries' else
+                            11 + len(formatted_product_data) % 4 if product == 'Chocolate' else
+                            14 + len(formatted_product_data) % 7 if product == 'Eggs' else
+                            18 + len(formatted_product_data) % 7 if product == 'Milk' else
+                            9 + len(formatted_product_data) % 6
+                        )
+                    })
+                
+                formatted_data[product] = formatted_product_data
+            
+            return jsonify({'predictions': formatted_data})
+        else:
+            return jsonify({'error': 'Predictions file not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/metrics', methods=['GET'])
 def get_metrics():
     """Get validation metrics for all products"""
